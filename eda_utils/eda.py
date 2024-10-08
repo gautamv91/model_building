@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 class EDA:
     
     def __init__(self):
-        
+        __version__ = '1.0.0'
         return None
     
     def count_na(self,col):
