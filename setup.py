@@ -12,9 +12,9 @@ setup(
    author='Gautam Varadarajan',
    author_email='gautam.10791@gmail.com',
    packages=['data_processing'],  # same as name
-   install_requires=['pandas==2.2.2',
-                     'numpy==1.24.4',
-                     'matplotlib==3.8.3',
-                     'seaborn==0.13.2',
-                     'scikit-learn==1.4.2']  # external packages as dependencies
+   install_requires=['pandas>=2.2.2',
+                     'numpy>=1.24.4',
+                     'matplotlib>=3.8.3',
+                     'seaborn>=0.13.2',
+                     'scikit-learn>=1.4.2']  # external packages as dependencies
 )
