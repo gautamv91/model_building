@@ -11,21 +11,46 @@ import matplotlib.pyplot as plt
 class EDA:
     
     def __init__(self):
-        __version__ = '1.0.0'
         return None
     
-    def count_na(self,col):
+    def count_na(self, col):
+        """
+        This function is used to count the number of missing values in a column of a pandas DF.
+
+        :param col: Name of the column
+        :return: int - Count of missing values in the column
+        """
         return col.isna().sum()
 
-    def percentile_25(self,col):
+    def percentile_25(self, col):
+        """
+        This function is used to calculate the 25th percentile of a column in a pandas DF.
+
+        :param col: Name of the column
+        :return: float - 25th percentile of the column
+        """
         return col.quantile(.25)
 
-    def percentile_75(self,col):
+    def percentile_75(self, col):
+        """
+        This function is used to calculate the 75th percentile of a column in a pandas DF.
+        :param col: Name of the column
+        :return: float - 75th percentile of the column
+        """
         return col.quantile(.75)
 
-    def create_data_summary(self,df, dtypes_df):
-        num_agg = ['nunique','count',self.count_na,'min','max',self.percentile_25,'mean','median',self.percentile_75,'std']
-        cat_agg = ['nunique','count',self.count_na]
+    def create_data_summary(self, df, dtypes_df):
+        """
+        This function creates a dataframe with the summary stats like count of unique values,
+        count of rows, count of missing values, min, max, mean, median, etc.
+
+        :param df: Input data
+        :param dtypes_df: DF containing the column names and datatypes for each column of "df"
+        :return: DF - Dataframe with the summary stats
+        """
+        num_agg = ['nunique', 'count', self.count_na, 'min', 'max', self.percentile_25, 'mean', 'median'
+                   , self.percentile_75, 'std']
+        cat_agg = ['nunique', 'count', self.count_na]
         
         agg_dict = dict()
         
@@ -41,37 +66,62 @@ class EDA:
         # Calculating the mode for each feature. If there are multiple modes then the 1st values
         # will be considered as the mode value for that feature.
         mode_df = df.mode(axis=0,numeric_only=False,dropna=True).iloc[0,:].reset_index()
-        mode_df.columns = ['col_name','mode']
+        mode_df.columns = ['col_name', 'mode']
         
-        data_summary = pd.merge(data_summary,mode_df,how='inner',on='col_name')
-        data_summary = data_summary[['col_name', 'nunique', 'count', 'count_na', 'mode', 'min', 'max',
-               'percentile_25', 'mean', 'median', 'percentile_75', 'std']]
+        data_summary = pd.merge(data_summary, mode_df, how='inner', on='col_name')
+        data_summary = data_summary[['col_name', 'nunique', 'count', 'count_na', 'mode', 'min', 'max'
+                                    , 'percentile_25', 'mean', 'median', 'percentile_75', 'std']]
         
         return data_summary
     
     def eda_plots(self):
+        """
+        This function contains multiple plot functions that can be used for analysis of the data.
+
+        :return: None
+        """
         
-        def dist_plot(self, df, cols, bin_num):
-             
+        def dist_plot(df, cols, bin_num=10):
+            """
+            This creates a histogram for each numeric column from the "cols" list.
+
+            :param df: Input dataframe
+            :param cols: List of columns
+            :param bin_num: Number of bins to be created. Default is 10.
+            :return: None
+            """
             for i in cols:
                 sns.set_style('whitegrid')
-                sns.distplot(df[i], kde = False, color ='red', bins = bin_num)
+                sns.distplot(df[i], kde=False, color='red', bins=bin_num)
                 plt.title(f'Distribution plot of {i}')
                 plt.show()
              
             return None
         
-        def count_plot(self, df, cols, split_by=None):
+        def count_plot(df, cols, split_by=None):
+            """
+            This creates a count plot for each categorical column from the "cols" list.
 
+            :param df: Input dataframe
+            :param cols: List of columns
+            :param split_by: Optional parameter that'll be used to split the data by the categorical variable provided
+            :return: None
+            """
             for i in cols:
-                sns.countplot(x=i, data=df,order=df[i].value_counts().index, hue=split_by)
+                sns.countplot(x=i, data=df, order=df[i].value_counts().index, hue=split_by)
                 plt.title(f'Count plot of {i}')
                 plt.show()
         
             return None
         
-        def box_plots(self, df, cols):
-            
+        def box_plots(df, cols):
+            """
+            This function will create box-plots for the list of numeric columns provided.
+
+            :param df: Input data
+            :param cols: List of numeric columns
+            :return: None
+            """
             for i in cols:
                 sns.boxplot(df[i])
                 plt.title(f'Box Plot of {i}')
@@ -79,13 +129,21 @@ class EDA:
             
             return None
         
-        def bivar_box_plt(self, df,cat_cols, num_cols):
-            
+        def bivar_box_plt(df, cat_cols, num_cols):
+            """
+            This function will create a grid of box-plots based on all combinations of numeric & categorical columns,
+            that can be used for bi-variate analysis.
+
+            :param df: Input data
+            :param cat_cols: List of categorical columns
+            :param num_cols: List of numerical columns
+            :return: None
+            """
             num_len = len(num_cols)
             cat_len = len(cat_cols)
             grid_rows = grid_cols = 1
             
-            if num_len>cat_len:
+            if num_len > cat_len:
                 grid_rows = num_len
                 grid_cols = cat_len
                 row_var = num_cols
@@ -107,27 +165,20 @@ class EDA:
                     
             return None
         
-        def correlation(self, data, fig_size):
+        def correlation(data, fig_size):
             """
-            
+            This function will plot the correlation matrix of the given data.
 
-            Parameters
-            ----------
-            data : Pandas DataFrame with numeric columns.
-            fig_size : Tuple with row_size & column_size
-
-            Returns
-            -------
-            None.
-
+            :param data: Input data
+            :param fig_size: Tuple - Containing height and width of the plot. Eg: (4,4)
+            :return: None
             """
+            corr = data.corr()
 
-            corr = correlation(data.corr())
-
-            sns.set(rc={"figure.figsize":fig_size})
+            sns.set(rc={"figure.figsize": fig_size})
             sns.heatmap(corr, annot=True)
 
-            sns.set(rc={"figure.figsize":(3, 4)})
+            sns.set(rc={"figure.figsize": (3, 4)})
             
             return None
     
