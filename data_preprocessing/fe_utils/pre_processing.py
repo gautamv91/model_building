@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import LabelEncoder, StandardScaler, OneHotEncoder
 
+
 class DataPreprocessing:
     
     def __init__(self):
@@ -133,10 +134,13 @@ class DataPreprocessing:
         the results file can be used for plotting.
         """
         cols = list(df.columns)
+        mapping_cols = []
         
         if mapping is not None:
             mapping_cols = list(mapping.keys())
             sk_le_cols = list(set(cols)-set(mapping_cols))
+        else:
+            sk_le_cols = cols
         
         le_config = dict()
         le_results = dict()

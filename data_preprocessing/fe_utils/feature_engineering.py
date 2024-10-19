@@ -1,6 +1,7 @@
 import numpy as np
 # import pandas as pd
 
+
 class FeatureEngineering:
 
 
@@ -8,15 +9,15 @@ class FeatureEngineering:
         
         return None
     
-    def drop_cols(self, df, col_list):
-        """
-        This function is used to drop columns from a dataframe
-
-        :param df: Input data
-        :param col_list: List of columns to drop
-        :return: None
-        """
-        df.drop(columns=col_list, inplace=True)
+    # def drop_cols(self, df, col_list):
+    #     """
+    #     This function is used to drop columns from a dataframe
+    #
+    #     :param df: Input data
+    #     :param col_list: List of columns to drop
+    #     :return: None
+    #     """
+    #     df.drop(columns=col_list, inplace=True)
 
     def extract_substr(self, var_data, start, end=None, dtype=None):
         """

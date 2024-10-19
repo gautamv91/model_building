@@ -8,11 +8,12 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+
 class EDA:
     
     def __init__(self):
         return None
-    
+
     def count_na(self, col):
         """
         This function is used to count the number of missing values in a column of a pandas DF.
@@ -39,13 +40,12 @@ class EDA:
         """
         return col.quantile(.75)
 
-    def create_data_summary(self, df, dtypes_df):
+    def create_data_summary(self, df):
         """
         This function creates a dataframe with the summary stats like count of unique values,
         count of rows, count of missing values, min, max, mean, median, etc.
 
         :param df: Input data
-        :param dtypes_df: DF containing the column names and datatypes for each column of "df"
         :return: DF - Dataframe with the summary stats
         """
         num_agg = ['nunique', 'count', self.count_na, 'min', 'max', self.percentile_25, 'mean', 'median'
@@ -53,12 +53,14 @@ class EDA:
         cat_agg = ['nunique', 'count', self.count_na]
         
         agg_dict = dict()
+
+        dtypes_df = df.dtypes.reset_index()
         
         for i in dtypes_df.index:
-            if dtypes_df.iloc[i,1]=='object':
-                agg_dict[dtypes_df.iloc[i,0]] = cat_agg
+            if dtypes_df.iloc[i, 1] == 'object':
+                agg_dict[dtypes_df.iloc[i, 0]] = cat_agg
             else:
-                agg_dict[dtypes_df.iloc[i,0]] = num_agg
+                agg_dict[dtypes_df.iloc[i, 0]] = num_agg
         
         data_summary = df.agg(agg_dict)
         data_summary = round(data_summary.T.reset_index(names='col_name'),2)
