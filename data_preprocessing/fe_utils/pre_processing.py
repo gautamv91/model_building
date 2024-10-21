@@ -13,8 +13,8 @@ class DataPreprocessing:
         """
         This is the fit function for outlier treatment, which returns a config file with the limits.
 
-        :param df: Input data
-        :param col_list: List of numerical columns to be treated for outliers
+        :param df: Input data.
+        :param col_list: List of numerical columns to be treated for outliers.
         :return: Dict - Config file with the lower and upper limits for clipping outliers.
         """
         outlier_config = dict()
@@ -36,9 +36,9 @@ class DataPreprocessing:
         """
         This is the transform function for outlier treatment, which returns the transformed data.
 
-        :param config: Dict - Config file from the fit function
-        :param df: Input data
-        :return: DataFrame - Containing the treated data
+        :param config: Dict - Config file from the fit function.
+        :param df: Input data.
+        :return: DataFrame - Containing the treated data.
         """
         for col in config.keys():
             otl_vals = config[col]
@@ -50,12 +50,12 @@ class DataPreprocessing:
         """
         This is the fit function for missing value treatment, which returns a config file with the replacement values.
 
-        :param df: Input data
-        :param num_vars: List of numerical features
-        :param cat_vars: List of categorical features
-        :param num_treat: Treatment method for numerical features. Default is median
-        :param cat_treat: Treatment method for categorical features.Default is mode
-        :return: Dict - Containing the replacement values for each column
+        :param df: Input data.
+        :param num_vars: List of numerical features.
+        :param cat_vars: List of categorical features.
+        :param num_treat: Treatment method for numerical features. Default is median.
+        :param cat_treat: Treatment method for categorical features.Default is mode.
+        :return: Dict - Containing the replacement values for each column.
         """
         replace_num_df = pd.DataFrame()
         if num_vars:
@@ -79,9 +79,9 @@ class DataPreprocessing:
         """
         This is the transform function for missing value treatment.
 
-        :param df: Input data
-        :param missing_treat_config: Config file from the fit function
-        :return: DataFrame - Treated data
+        :param df: Input data.
+        :param missing_treat_config: Config file from the fit function.
+        :return: DataFrame - Treated data.
         """
 
         final_df = df.fillna(value=missing_treat_config)
@@ -92,9 +92,9 @@ class DataPreprocessing:
         """
         This is the fit function for standard scaler.
 
-        :param df: Input data
-        :param scale_cols: List of columns to be scaled
-        :return: Scaling model
+        :param df: Input data.
+        :param scale_cols: List of columns to be scaled.
+        :return: Scaling model.
         """
         ss_scaler = StandardScaler()
         
@@ -112,10 +112,10 @@ class DataPreprocessing:
         """
         This is the transform function for scaling the data.
 
-        :param scale_config: Scale_mod from the fit function
-        :param data: Input data
-        :param scale_cols: list of columns to be scaled
-        :return: DataFrame - Treated data
+        :param scale_config: Scale_mod from the fit function.
+        :param data: Input data.
+        :param scale_cols: list of columns to be scaled.
+        :return: DataFrame - Treated data.
         """
         scaled_feats = pd.DataFrame(scale_config.transform(data[scale_cols]), columns=scale_cols)
         scale_df = data.loc[:, ~data.columns.isin(scale_cols)]
@@ -128,8 +128,8 @@ class DataPreprocessing:
         """
         This is the fit functino for label encoding of categorical features.
 
-        :param df: Input data
-        :param mapping: Optional - Dict - Used to provide custom labels to categories
+        :param df: Input data.
+        :param mapping: Optional - Dict - Used to provide custom labels to categories.
         :return: Tuple - (config, results) - The config file is to be passed to the transform function &
         the results file can be used for plotting.
         """
@@ -162,9 +162,9 @@ class DataPreprocessing:
         """
         This is the transform function for label encoding categorical features.
 
-        :param data: Input data
-        :param le_config: Config file from the fit function
-        :return: DataFrame - Transformed data
+        :param data: Input data.
+        :param le_config: Config file from the fit function.
+        :return: DataFrame - Transformed data.
         """
         cols = list(le_config.keys())
         le_data = data.copy(deep=True)
@@ -183,9 +183,9 @@ class DataPreprocessing:
         """
         This is the fit functino for frequency encoding of categorical features.
 
-        :param df: Input data
-        :param cat_cols: list of columns to be encoded
-        :return: Dict - Mapping of categories with frequencies
+        :param df: Input data.
+        :param cat_cols: list of columns to be encoded.
+        :return: Dict - Mapping of categories with frequencies.
         """
         freq_enc_map = dict()
         
@@ -201,25 +201,26 @@ class DataPreprocessing:
         """
         This is the transform function for frequency encoding categorical features.
 
-        :param df: Input data
-        :param freq_config: Mapping file from fit function
-        :return: DataFrame - Transformed data
+        :param df: Input data.
+        :param freq_config: Mapping file from fit function.
+        :return: DataFrame - Transformed data.
         """
+        fdf = df.copy(deep=True)
         for key, value in freq_config.items():
             cat_freq_map = value['freq_map']
-            df[key] = df[key].map(cat_freq_map)
-            df.loc[df[key].isna(), key] = value['freq_mode']
+            fdf[key] = fdf[key].map(cat_freq_map)
+            fdf.loc[fdf[key].isna(), key] = value['freq_mode']
         
-        return df
+        return fdf
     
     def ohe_fit(self, df, cols):
         """
         This is the fit functino for one-hot encoding of categorical features.
 
-        :param df: Input data
-        :param cols: list of columns to be encoded
+        :param df: Input data.
+        :param cols: list of columns to be encoded.
         :return: Tuple -- (ohe_mod, new_column_names) -- The ohe_mod file contains the configurations to be
-        passed to the transform function & the new_column_names dict contains the list of new OHE features names
+        passed to the transform function & the new_column_names dict contains the list of new OHE features names.
         """
         ohe = OneHotEncoder(handle_unknown='ignore')
         df_subset = df[cols].copy(deep=True)
@@ -239,12 +240,11 @@ class DataPreprocessing:
         """
         This is the transform function for one-hot encoding categorical features.
 
-        :param df: Input data
-        :param ohe_mod: OHE model from fit function
-        :param new_col_names: New feature names mapping from fit function
-        :param drop_vals: Optional -- Dict containing the category to be dropped from the transformed features.
-        This mimics dummy encoding behaviour, by dropping a specific value rather than the first value
-        :return: DataFrame - Transformed data
+        :param df: Input data.
+        :param ohe_mod: OHE model from fit function.
+        :param new_col_names: New feature names mapping from fit function.
+        :param drop_vals: Optional -- Dict containing the category to be dropped from the transformed features. This mimics dummy encoding behaviour, by dropping a specific value rather than the first value.
+        :return: DataFrame - Transformed data.
         """
         ohe_new_cols = list()
         orig_cols = list(new_col_names.keys())
@@ -261,7 +261,11 @@ class DataPreprocessing:
                 cols_to_drop.append(key+"_"+str(val))
     
             new_df.drop(columns=cols_to_drop, inplace=True)
-    
+            
+        new_df.index = df.index
+        new_df = df.merge(new_df, how='inner', left_index=True, right_index=True)
+        new_df.drop(columns=orig_cols, inplace=True)
+        
         return new_df
     
     

@@ -23,11 +23,11 @@ class FeatureEngineering:
         """
         This function is used to extract parts of a string in a pandas Series.
 
-        :param var_data: Pandas Series data
-        :param start: Starting index of sub-string
-        :param end: Optional - Will be used as end of sub-string if provided
-        :param dtype: Optional - The data type that the sub-string needs to be converted to. Eg: 'int', 'float'
-        :return: Pandas Series data
+        :param var_data: Pandas Series data.
+        :param start: Starting index of sub-string.
+        :param end: Optional - Will be used as end of sub-string if provided.
+        :param dtype: Optional - The data type that the sub-string needs to be converted to. Eg: 'int', 'float'.
+        :return: Pandas Series data.
         """
         if end is None and dtype is None:
             return var_data.str.strip().str[start:]
@@ -40,9 +40,9 @@ class FeatureEngineering:
         """
         This function is used to convert numeric columns into flag columns based on the threshold provided.
 
-        :param df: Input data
+        :param df: Input data.
         :param flag_map: Dict - Containing columns as keys and threshold for flag as values.
-        :return: Dataframe
+        :return: Dataframe.
         """
         for i in flag_map.keys():
             flag_val = flag_map[i]
@@ -50,15 +50,21 @@ class FeatureEngineering:
             
         return df
     
-    def apply_grouping(self, var_data, grp_config):
+    def apply_grouping(self, data, grp_config):
         """
-        This function will apply the given grouping for a categorical variable.
+        This function will apply the given grouping for a categorical variable for the
+        list of features provided and store the result in a new column.
 
-        :param var_data: Pandas Series data
-        :param grp_config: Dict - Containing original string as key and replacement as value
-        :return: Pandas Series data
+        :param data: Pandas dataframe.
+        :param grp_config: Dict - Containing original string as key and replacement as value for each feature.
+        :return: Pandas Series data.
         """
-        for key, val in grp_config.items():
-            var_data[var_data.isin(val)] = key
+        columns = list(grp_config.keys())
+        
+        for col in columns:
+            new_col = col+'_group'
+            data[new_col] = np.nan
+            for key, val in grp_config[col].items():
+                data.loc[data[col].isin(val), new_col] = key
             
-        return var_data
+        return data
