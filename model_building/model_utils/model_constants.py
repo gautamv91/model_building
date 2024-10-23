@@ -9,3 +9,9 @@ ALL_MODELS = {**CLASSIFIERS, **REGRESSORS}  # ** unpacks the dictionary into ind
 ## Hyper-parameter Tuning Methods
 
 GRID_SEARCH = 'grid'
+RANDOM_SEARCH = 'random'
+
+## Objectives
+BINARY = 'binary'
+MULTICLASS = 'multi'
+REGRESSION = 'regression'
