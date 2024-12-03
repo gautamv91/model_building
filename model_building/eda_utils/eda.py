@@ -104,8 +104,12 @@ class EDA:
             rw = i//grid_cols
             
             sns.set_style('whitegrid')
-            sns.histplot(df[cols[i]], kde=False, color='red', bins=bin_num, ax=axis[rw, cl])
-            # plt.title(f'Distribution plot of {i}')
+            
+            if grid_rows==1:
+                sns.histplot(df[cols[i]], kde=False, color='red', bins=bin_num, ax=axis[cl])
+            else:
+                sns.histplot(df[cols[i]], kde=False, color='red', bins=bin_num, ax=axis[rw, cl])
+                # plt.title(f'Distribution plot of {i}')
         
         plt.show()
 
@@ -120,6 +124,7 @@ class EDA:
         :param split_by: Optional parameter that'll be used to split the data by the categorical variable provided.
         :return: None.
         """
+        
         grid_cols = min(len(cols), 4)
         grid_rows = math.ceil(len(cols)/grid_cols)
         figure, axis = plt.subplots(grid_rows, grid_cols, figsize=(grid_cols*3,grid_rows*2))
@@ -128,7 +133,12 @@ class EDA:
         for i in range(len(cols)):
             cl = i%grid_cols
             rw = i//grid_cols
-            sns.countplot(x=cols[i], data=df, order=df[cols[i]].value_counts().index, 
+            
+            if grid_rows==1:
+                sns.countplot(x=cols[i], data=df, order=df[cols[i]].value_counts().index, 
+                          hue=split_by, ax=axis[cl])
+            else:
+                sns.countplot(x=cols[i], data=df, order=df[cols[i]].value_counts().index, 
                           hue=split_by, ax=axis[rw, cl])
             # plt.title(f'Count plot of {i}')
             # axis[rw, cl].set_title(f'Count plot of {i}')
@@ -153,8 +163,12 @@ class EDA:
         for i in range(len(cols)):
             cl = i%grid_cols
             rw = i//grid_cols
-            sns.boxplot(ax=axis[rw, cl], x=cols[i],  data=df)
-            # plt.title(f'Box Plot of {i}')
+            
+            if grid_rows==1:
+                sns.boxplot(ax=axis[cl], x=cols[i], data=df)
+            else:
+                sns.boxplot(ax=axis[rw, cl], x=cols[i], data=df)
+                # plt.title(f'Box Plot of {i}')
         
         plt.show()
 
