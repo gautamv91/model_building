@@ -108,7 +108,7 @@ class DataPreprocessing:
         # return train_scale_df, scale_mod
         return scale_mod
 
-    def std_scaler_transform(self, scale_config, data, scale_cols):
+    def std_scaler_transform(self, scale_config, data, scale_cols, precision=4):
         """
         This is the transform function for scaling the data.
 
@@ -117,7 +117,7 @@ class DataPreprocessing:
         :param scale_cols: list of columns to be scaled.
         :return: DataFrame - Treated data.
         """
-        scaled_feats = pd.DataFrame(scale_config.transform(data[scale_cols]), columns=scale_cols)
+        scaled_feats = pd.DataFrame(scale_config.transform(data[scale_cols]), columns=scale_cols).round(precision)
         scale_df = data.loc[:, ~data.columns.isin(scale_cols)]
         scaled_feats.index = scale_df.index
         scale_df = scale_df.merge(scaled_feats, how='inner', left_index=True, right_index=True)
