@@ -135,8 +135,12 @@ class EDA:
             rw = i//grid_cols
             
             if grid_rows==1:
+                if grid_cols==1:
+                    ax_  = axis
+                else:
+                    ax_ = axis[cl]
                 sns.countplot(x=cols[i], data=df, order=df[cols[i]].value_counts().index, 
-                          hue=split_by, ax=axis[cl])
+                          hue=split_by, ax=ax_)
             else:
                 sns.countplot(x=cols[i], data=df, order=df[cols[i]].value_counts().index, 
                           hue=split_by, ax=axis[rw, cl])
