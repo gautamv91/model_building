@@ -146,6 +146,7 @@ class EDA:
                           hue=split_by, ax=axis[rw, cl])
             # plt.title(f'Count plot of {i}')
             # axis[rw, cl].set_title(f'Count plot of {i}')
+            ax_.tick_params(axis='x', labelrotation=90, labelsize='small')
             
         plt.show()
 
