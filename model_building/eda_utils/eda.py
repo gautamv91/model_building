@@ -141,12 +141,14 @@ class EDA:
                     ax_ = axis[cl]
                 sns.countplot(x=cols[i], data=df, order=df[cols[i]].value_counts().index, 
                           hue=split_by, ax=ax_)
+                ax_.tick_params(axis='x', labelrotation=90, labelsize='small')
             else:
                 sns.countplot(x=cols[i], data=df, order=df[cols[i]].value_counts().index, 
                           hue=split_by, ax=axis[rw, cl])
+                axis[rw, cl].tick_params(axis='x', labelrotation=90, labelsize='small')
             # plt.title(f'Count plot of {i}')
             # axis[rw, cl].set_title(f'Count plot of {i}')
-            ax_.tick_params(axis='x', labelrotation=90, labelsize='small')
+            
             
         plt.show()
 
