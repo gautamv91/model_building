@@ -120,7 +120,8 @@ class DataPreprocessing:
         scaled_feats = pd.DataFrame(scale_config.transform(data[scale_cols]), columns=scale_cols).round(precision)
         scale_df = data.loc[:, ~data.columns.isin(scale_cols)]
         scaled_feats.index = scale_df.index
-        scale_df = scale_df.merge(scaled_feats, how='inner', left_index=True, right_index=True)
+        # scale_df = scale_df.merge(scaled_feats, how='inner', left_index=True, right_index=True)
+        scale_df = pd.concat([scale_df, scaled_feats], axis=1)
         
         return scale_df
     
@@ -263,7 +264,8 @@ class DataPreprocessing:
             new_df.drop(columns=cols_to_drop, inplace=True)
             
         new_df.index = df.index
-        new_df = df.merge(new_df, how='inner', left_index=True, right_index=True)
+        # new_df = df.merge(new_df, how='inner', left_index=True, right_index=True)
+        new_df = pd.concat([df, new_df], axis=1)
         new_df.drop(columns=orig_cols, inplace=True)
         
         return new_df
