@@ -1,6 +1,6 @@
 from setuptools import setup
 
-with open("README", 'r') as f:
+with open("README.md", 'r') as f:
     long_description = f.read()
 
 setup(
@@ -11,9 +11,9 @@ setup(
    author='Gautam Varadarajan',
    author_email='gautam.10791@gmail.com',
    packages=['model_building'],  # same as name
-   install_requires=['pandas==2.2.2',
-                     'numpy==1.24.4',
-                     'matplotlib==3.8.3',
-                     'seaborn==0.13.2',
-                     'scikit-learn==1.4.2']  # external packages as dependencies
+   install_requires=['pandas>=2.2.2',
+                     'numpy>=1.24.4',
+                     'matplotlib>=3.8.3',
+                     'seaborn>=0.13.2',
+                     'scikit-learn>=1.4.2']  # external packages as dependencies
 )
