@@ -209,12 +209,19 @@ class EDA:
         figure, axis = plt.subplots(grid_rows, grid_cols, figsize=(grid_cols*3,grid_rows*2))
         figure.tight_layout()
 
-        for i in range(grid_rows):
-            for j in range(grid_cols):
+        if grid_cols>1:
+            for i in range(grid_rows):
+                for j in range(grid_cols):
+                    if row_var[i] in num_cols:
+                        sns.boxplot(ax=axis[i, j], x=col_var[j], y=row_var[i], data=df)
+                    else:
+                        sns.boxplot(ax=axis[i, j], x=row_var[i], y=col_var[j], data=df)
+        else:
+            for i in range(grid_rows):
                 if row_var[i] in num_cols:
-                    sns.boxplot(ax=axis[i, j], x=col_var[j], y=row_var[i], data=df)
+                    sns.boxplot(ax=axis[i], x=col_var[0], y=row_var[i], data=df)
                 else:
-                    sns.boxplot(ax=axis[i, j], x=row_var[i], y=col_var[j], data=df)
+                    sns.boxplot(ax=axis[i], x=row_var[i], y=col_var[0], data=df)
 
         plt.show()
 
