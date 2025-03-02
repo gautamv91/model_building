@@ -61,7 +61,10 @@ class DataPreprocessing:
         if num_vars:
             if num_treat == 'median':
                 replace_num_df = df[num_vars].median().reset_index()
-                replace_num_df.columns = ['feature', 'replace_val']
+            elif num_treat == 'mean':
+                replace_num_df = df[num_vars].mean().reset_index()
+            replace_num_df.columns = ['feature', 'replace_val']
+                
         
         replace_cat_df = pd.DataFrame()
         if cat_vars:
