@@ -72,7 +72,8 @@ class DataPreprocessing:
                 replace_cat_df = df[cat_vars].mode(axis=0, numeric_only=False, dropna=True).iloc[0,:].reset_index()
                 replace_cat_df.columns = ['feature', 'replace_val']
             
-        miss_config = replace_num_df.append(replace_cat_df, ignore_index=True)
+        # miss_config = replace_num_df.append(replace_cat_df, ignore_index=True)
+        miss_config = pd.concat([replace_num_df, replace_cat_df], ignore_index=True, axis=0)
         miss_config = miss_config.set_index('feature').T.to_dict('list')
         miss_config = {x: y[0] for x, y in miss_config.items()}
         
