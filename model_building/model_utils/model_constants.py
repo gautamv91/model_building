@@ -6,6 +6,7 @@ REGRESSORS = {'ln_r': 'LinearRegression', 'rf_r': 'RandomForestRegressor', 'xgb_
               'lgbm_r': 'LGBMRegressor'}
 ALL_MODELS = {**CLASSIFIERS, **REGRESSORS}  # ** unpacks the dictionary into individual items.
 
+
 ## Hyper-parameter Tuning Methods
 
 GRID_SEARCH = 'grid'
@@ -15,3 +16,9 @@ RANDOM_SEARCH = 'random'
 BINARY = 'binary'
 MULTICLASS = 'multi'
 REGRESSION = 'regression'
+
+## Metrics
+ALL_METRICS = 'all'
+
+## Classification metrics
+ALL_METRIC_NAMES_BIN = ['accuracy', 'precision', 'recall', 'f1 score', 'au-roc']
