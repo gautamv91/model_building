@@ -11,13 +11,15 @@ class ModelSelection:
         self.classifiers_ = mc.CLASSIFIERS
         self.regressors_ = mc.REGRESSORS
         self.all_models = mc.ALL_MODELS
+        self.all_binary_metrics = mc.ALL_METRIC_NAMES_BIN
 
 
     def model_init(self, model_list):
 
         return None
     
-    def train_test_compare(self, model_obj, xtrain, xtest, ytrain, ytest, objective=mc.BINARY):
+    def train_test_compare(self, model_objs, xtrain, xtest, ytrain, ytest
+                           , metrics_list=mc.ALL_METRICS, objective=mc.BINARY):
         """
         This function return a dataframe with the classification metrics comparison
         between train & test datasets.
@@ -48,27 +50,59 @@ class ModelSelection:
         test = list()
 
         if objective == mc.BINARY:
-            train_pred = model_obj.predict(xtrain)
-            test_pred = model_obj.predict(xtest)
-
-            data_dict = {'train': [ytrain, train_pred], 'test': [ytest, test_pred]}
-
-            metrics = ['accuracy', 'precision', 'recall', 'f1 score', 'au-roc']
-            for key, data in data_dict.items():
-
-                acc = accuracy_score(data[0], data[1])
-                pr = precision_score(data[0], data[1])
-                rcl = recall_score(data[0], data[1])
-                f1 = f1_score(data[0], data[1])
-                auc = roc_auc_score(data[0], data[1])
-
-                if key == 'train':
-                    train = [acc, pr, rcl, f1, auc]
+            for i in range(len(model_objs['models'])):
+                model_obj = model_objs['models'][i]
+                model_name = model_objs['model_name'][i]
+                
+                train_pred = model_obj.predict(xtrain)
+                test_pred = model_obj.predict(xtest)
+                train_pred_prob = model_obj.predict_proba(xtrain)[:,1]
+                test_pred_prob = model_obj.predict_proba(xtest)[:,1]
+                
+                data_dict = {'train': [ytrain, train_pred, train_pred_prob], 'test': [ytest, test_pred, test_pred_prob]}
+                
+                if metrics_list == mc.ALL_METRICS:
+                    metrics = self.all_binary_metrics
                 else:
-                    test = [acc, pr, rcl, f1, auc]
+                    metrics = metrics_list
+                    
+                for key, data in data_dict.items():
+                    metrics_vals = list()
+                    
+                    if 'accuracy' in metrics:
+                        acc = accuracy_score(data[0], data[1])
+                        metrics_vals.append(acc)
+                    if 'precision' in metrics:
+                        pr = precision_score(data[0], data[1])
+                        metrics_vals.append(pr)
+                    if 'recall' in metrics:
+                        rcl = recall_score(data[0], data[1])
+                        metrics_vals.append(rcl)
+                    if 'f1 score' in metrics:
+                        f1 = f1_score(data[0], data[1])
+                        metrics_vals.append(f1)
+                    if 'au-roc' in metrics:
+                        auc = roc_auc_score(data[0], data[2])
+                        metrics_vals.append(auc)
+    
+                    if key == 'train':
+                        train = metrics_vals
+                    else:
+                        test = metrics_vals
 
-            metrics_df = pd.DataFrame({'metrics': metrics,
-                                       'train': train,
-                                       'test': test})
+                metrics_df = pd.concat( [metrics_df, 
+                                       pd.DataFrame({'model':[model_name for i in metrics], 
+                                                     'metrics': metrics, 'train': train, 'test': test})]
+                                       , axis=0, ignore_index=True
+                                       )
+        metrics_df.set_index(['model', 'metrics'], inplace=True)
         
         return metrics_df
+    
+    def choose_best_model(self, metrics_df, eval_metric):
+        metrics = metrics_df.reset_index()
+        best_idx = metrics.loc[metrics['metrics']==eval_metric,['test']].idxmax()
+        best_model_name = metrics.iloc[best_idx,0].values[0]
+        best_val = round(metrics.loc[best_idx,'test'].values[0],4)
+        print(f'Based on the {eval_metric} values the {best_model_name} model has the best performance ({best_val}) on the validation dataset.')
+        

@@ -115,7 +115,7 @@ class EDA:
 
         return None
 
-    def count_plot(self, df, cols, split_by=None):
+    def count_plot(self, df, cols, split_by=None, order_by=None):
         """
         This creates a count plot for each categorical column from the "cols" list.
 
@@ -133,18 +133,20 @@ class EDA:
         for i in range(len(cols)):
             cl = i%grid_cols
             rw = i//grid_cols
+            if order_by is None:
+                x_vals_order = df[cols[i]].value_counts().index
+            else:
+                x_vals_order = sorted(list(df[order_by].unique()))
             
             if grid_rows==1:
                 if grid_cols==1:
                     ax_  = axis
                 else:
                     ax_ = axis[cl]
-                sns.countplot(x=cols[i], data=df, order=df[cols[i]].value_counts().index, 
-                          hue=split_by, ax=ax_)
+                sns.countplot(x=cols[i], data=df, order=x_vals_order, hue=split_by, ax=ax_)
                 ax_.tick_params(axis='x', labelrotation=90, labelsize='small')
             else:
-                sns.countplot(x=cols[i], data=df, order=df[cols[i]].value_counts().index, 
-                          hue=split_by, ax=axis[rw, cl])
+                sns.countplot(x=cols[i], data=df, order=x_vals_order, hue=split_by, ax=axis[rw,cl])
                 axis[rw, cl].tick_params(axis='x', labelrotation=90, labelsize='small')
             # plt.title(f'Count plot of {i}')
             # axis[rw, cl].set_title(f'Count plot of {i}')
