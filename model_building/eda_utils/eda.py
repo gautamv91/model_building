@@ -228,6 +228,42 @@ class EDA:
         plt.show()
 
         return None
+    
+    def bivar_line_plot(self, df, num_cols):
+        """
+        This function is used to generate line plots between pairs of numeric variables to identify
+        relationships.
+
+        Parameters
+        ----------
+        :param df: Input data.
+        :param num_cols : List of numeric columns to be plotted
+
+        Returns
+        -------
+        None.
+
+        """
+        col_ids = {i:num_cols[i] for i in range(len(num_cols))}
+        col_nums = list(col_ids.keys())
+        all_combs = set([tuple(sorted([i,j])) for i in col_nums for j in col_nums if i!=j])
+        #num_len = len(all_combs)
+        
+        plot_cols = len(num_cols)
+        plot_rows = plot_cols-1
+        
+        figure, axis = plt.subplots(plot_rows, plot_cols-1, figsize=(plot_cols*3,plot_rows*2))
+        figure.tight_layout()
+        
+        for rw,cl in all_combs:
+            row_var = col_ids[rw]
+            col_var = col_ids[cl]
+            # axis[rw,cl].plot(df[row_var], df[col_var])
+            sns.lineplot(data=df, x=row_var, y=col_var, ax=axis[rw,cl-1])
+            
+        plt.show()
+        
+        return None
 
     def correlation(self, data, fig_size=(8,8)):
         """
