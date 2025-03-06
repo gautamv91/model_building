@@ -54,11 +54,17 @@ class ModelSelection:
                 model_obj = model_objs['models'][i]
                 model_name = model_objs['model_name'][i]
                 
-                train_pred = model_obj.predict(xtrain)
-                test_pred = model_obj.predict(xtest)
-                train_pred_prob = model_obj.predict_proba(xtrain)[:,1]
-                test_pred_prob = model_obj.predict_proba(xtest)[:,1]
-                
+                if 'nn' in model_name:
+                    train_pred = np.where(model_obj.predict(xtrain)>=0.5,1,0)
+                    test_pred = np.where(model_obj.predict(xtest)>=0.5,1,0)
+                    train_pred_prob = model_obj.predict(xtrain)
+                    test_pred_prob = model_obj.predict(xtest)
+                else:
+                    train_pred = model_obj.predict(xtrain)
+                    test_pred = model_obj.predict(xtest)
+                    train_pred_prob = model_obj.predict_proba(xtrain)[:,1]
+                    test_pred_prob = model_obj.predict_proba(xtest)[:,1]
+                    
                 data_dict = {'train': [ytrain, train_pred, train_pred_prob], 'test': [ytest, test_pred, test_pred_prob]}
                 
                 if metrics_list == mc.ALL_METRICS:
