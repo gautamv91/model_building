@@ -112,3 +112,11 @@ class ModelSelection:
         best_val = round(metrics.loc[best_idx,'test'].values[0],4)
         print(f'Based on the {eval_metric} values the {best_model_name} model has the best performance ({best_val}) on the validation dataset.')
         
+    def model_coeff_linear(self, model_obj):
+        
+        coef_df = pd.DataFrame({'feature_name':model_obj.feature_names_in_,'coefficients':model_obj.coef_[0].tolist()})
+        coef_df = pd.concat([coef_df,pd.DataFrame({'feature_name':['intercept'],'coefficients':model_obj.intercept_})],
+                                      axis=0,ignore_index=True)
+        
+        return coef_df
+        
