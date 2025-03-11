@@ -198,7 +198,7 @@ class DataPreprocessing:
             freq_data = df[i].value_counts(normalize=True)
             freq_enc_map[i] = dict()
             freq_enc_map[i]['freq_map'] = freq_data.to_dict()
-            freq_enc_map[i]['freq_mode'] = freq_data[0]
+            freq_enc_map[i]['freq_mode'] = freq_data[freq_data.index[0]]
             
         return freq_enc_map
 

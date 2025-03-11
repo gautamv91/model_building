@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 from . import model_constants as mc
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score,\
-        roc_auc_score
+        roc_auc_score, mean_absolute_percentage_error, mean_squared_error, \
+        root_mean_squared_error, r2_score
 
 
 class ModelSelection:
@@ -12,6 +13,7 @@ class ModelSelection:
         self.regressors_ = mc.REGRESSORS
         self.all_models = mc.ALL_MODELS
         self.all_binary_metrics = mc.ALL_METRIC_NAMES_BIN
+        self.all_regression_metrics = mc.ALL_METRIC_NAMES_REG
 
 
     def model_init(self, model_list):
@@ -101,13 +103,59 @@ class ModelSelection:
                                                      'metrics': metrics, 'train': train, 'test': test})]
                                        , axis=0, ignore_index=True
                                        )
+        elif objective==mc.REGRESSION:
+            for i in range(len(model_objs['models'])):
+                model_obj = model_objs['models'][i]
+                model_name = model_objs['model_name'][i]
+                
+                train_pred = model_obj.predict(xtrain)
+                test_pred = model_obj.predict(xtest)
+                
+                data_dict = {'train': [ytrain, train_pred], 'test': [ytest, test_pred]}
+                
+                if metrics_list == mc.ALL_METRICS:
+                    metrics = self.all_binary_metrics
+                else:
+                    metrics = metrics_list
+                
+                for key, data in data_dict.items():
+                    metrics_vals = list()
+                    
+                    if 'mse' in metrics:
+                        mse = mean_squared_error(data[0], data[1])
+                        metrics_vals.append(mse)
+                    if 'rmse' in metrics:
+                        rmse = root_mean_squared_error(data[0], data[1])
+                        metrics_vals.append(rmse)
+                    if 'mape' in metrics:
+                        mape = mean_absolute_percentage_error(data[0], data[1])
+                        metrics_vals.append(mape)
+                    if 'r2' in metrics:
+                        r2 = r2_score(data[0], data[1])
+                        metrics_vals.append(r2)
+                        
+                    if key == 'train':
+                        train = metrics_vals
+                    else:
+                        test = metrics_vals
+
+                metrics_df = pd.concat( [metrics_df, 
+                                       pd.DataFrame({'model':[model_name for i in metrics], 
+                                                     'metrics': metrics, 'train': train, 'test': test})]
+                                       , axis=0, ignore_index=True
+                                       )
+            
         metrics_df.set_index(['model', 'metrics'], inplace=True)
         
         return metrics_df
     
     def choose_best_model(self, metrics_df, eval_metric):
         metrics = metrics_df.reset_index()
-        best_idx = metrics.loc[metrics['metrics']==eval_metric,['test']].idxmax()
+        if eval_metric in self.all_binary_metrics:
+            best_idx = metrics.loc[metrics['metrics']==eval_metric,['test']].idxmax()
+        else:
+            best_idx = metrics.loc[metrics['metrics']==eval_metric,['test']].idxmin()
+            
         best_model_name = metrics.iloc[best_idx,0].values[0]
         best_val = round(metrics.loc[best_idx,'test'].values[0],4)
         print(f'Based on the {eval_metric} values the {best_model_name} model has the best performance ({best_val}) on the validation dataset.')
@@ -118,5 +166,5 @@ class ModelSelection:
         coef_df = pd.concat([coef_df,pd.DataFrame({'feature_name':['intercept'],'coefficients':model_obj.intercept_})],
                                       axis=0,ignore_index=True)
         
-        return coef_df
+        return coef_df.round(4)
         
