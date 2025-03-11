@@ -22,3 +22,6 @@ ALL_METRICS = 'all'
 
 ## Classification metrics
 ALL_METRIC_NAMES_BIN = ['accuracy', 'precision', 'recall', 'f1 score', 'au-roc']
+
+## Regression metrics
+ALL_METRIC_NAMES_REG = ['rmse', 'mse', 'mae', 'mape', 'r2']

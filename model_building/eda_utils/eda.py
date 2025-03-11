@@ -282,4 +282,39 @@ class EDA:
 
         return None
     
+    def xy_scatter_plot(self, x_data, num_cols, y_data):
+        """
+        This function generates a grid of scatter plots between the X variables & target variable.
+
+        Parameters
+        ----------
+        x_data : DataFramewith X variables.
+        num_cols : List of numeric variables
+        y_data : Series of the target variable.
+
+        Returns
+        -------
+        None.
+
+        """
+        cols_len = len(num_cols)
+        grid_cols = min(cols_len, 4)
+        grid_rows = math.ceil(cols_len/grid_cols)
+        figure, axis = plt.subplots(grid_rows, grid_cols, figsize=(grid_cols*3,grid_rows*2))
+        figure.tight_layout()
+        
+        for i in range(cols_len):
+            cl = i%grid_cols
+            rw = i//grid_cols
+            col = num_cols[i]
+            
+            if grid_rows==1:
+                sns.scatterplot(ax=axis[cl],  x=y_data, y=x_data[col])
+            else:
+                sns.scatterplot(ax=axis[rw, cl], x=y_data, y=x_data[col])
+                # plt.title(f'Box Plot of {i}')
+        
+        plt.show()
+
+        return None
     

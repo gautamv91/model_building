@@ -50,7 +50,7 @@ class FeatureEngineering:
             
         return df
     
-    def apply_grouping(self, data, grp_config):
+    def apply_grouping(self, data, grp_config, default_group='others'):
         """
         This function will apply the given grouping for a categorical variable for the
         list of features provided and store the result in a new column.
@@ -63,8 +63,13 @@ class FeatureEngineering:
         
         for col in columns:
             new_col = col+'_group'
+            # if new_col in data.columns:
+            #     data.drop([new_col],axis=1, inplace=True)
+                
             data[new_col] = np.nan
             for key, val in grp_config[col].items():
                 data.loc[data[col].isin(val), new_col] = key
+            
+            data[new_col] = np.where(data[new_col].isin(grp_config[col].keys()), data[new_col], default_group)
             
         return data
