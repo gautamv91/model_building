@@ -4,6 +4,9 @@ from . import model_constants as mc
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score,\
         roc_auc_score, mean_absolute_percentage_error, mean_squared_error, \
         root_mean_squared_error, r2_score
+        
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 class ModelSelection:
@@ -162,9 +165,50 @@ class ModelSelection:
         
     def model_coeff_linear(self, model_obj):
         
-        coef_df = pd.DataFrame({'feature_name':model_obj.feature_names_in_,'coefficients':model_obj.coef_[0].tolist()})
+        coef_df = pd.DataFrame({'feature_name':model_obj.feature_names_in_,'coefficients':model_obj.coef_.tolist()})
         coef_df = pd.concat([coef_df,pd.DataFrame({'feature_name':['intercept'],'coefficients':model_obj.intercept_})],
                                       axis=0,ignore_index=True)
         
         return coef_df.round(4)
+    
+    def get_feature_importances(self, model_obj_dict):
+        
+        feat_imp_df = pd.DataFrame()
+        for i in range(len(model_obj_dict['models'])):
+            model_obj = model_obj_dict['models'][i]
+            model_name = model_obj_dict['model_name'][i]
+            hp_tuned = model_obj_dict['hp_tuned'][i]
+            
+            if hp_tuned == 'N':
+                try:
+                    fe_imps = model_obj.coef_.tolist()
+                except:
+                    fe_imps = model_obj.coef_.feature_importances_.tolist()
+                    
+            else:
+                try:
+                    fe_imps = model_obj.best_estimator_.coef_.tolist()
+                except:
+                    fe_imps = model_obj.best_estimator_.feature_importances_.tolist()
+            
+            if i==0:
+                feat_imp_df = pd.DataFrame({'feature_name':model_obj.feature_names_in_, 
+                                            model_name:fe_imps})  
+            else:
+                feat_imp_df[model_name] = fe_imps
+                
+        return feat_imp_df.round(4)
+    
+    def plot_actual_v_pred(self, y_actual, y_pred):
+        y_act_sort = y_actual.sort_values(ascending=True)
+        y_pred_sort = pd.Series(y_pred, index=y_actual.index).reindex(y_act_sort.index)
+        y_act_sort.reset_index(drop=True, inplace=True)
+        y_pred_sort.reset_index(drop=True, inplace=True)
+        
+        plt.figure(figsize=(15, 13))
+        plt.plot(y_act_sort.index, y_act_sort, linestyle="-", color='blue', label='actual')
+        plt.plot(y_act_sort.index, y_pred_sort, linestyle="-", color='red', label='pred')
+        plt.legend()
+        plt.show()
+        return None
         
