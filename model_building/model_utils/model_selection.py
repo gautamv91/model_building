@@ -150,7 +150,7 @@ class ModelSelection:
             
         metrics_df.set_index(['model', 'metrics'], inplace=True)
         
-        return metrics_df
+        return metrics_df.round(5)
     
     def choose_best_model(self, metrics_df, eval_metric):
         metrics = metrics_df.reset_index()
@@ -179,23 +179,24 @@ class ModelSelection:
             model_name = model_obj_dict['model_name'][i]
             hp_tuned = model_obj_dict['hp_tuned'][i]
             
-            if hp_tuned == 'N':
-                try:
-                    fe_imps = model_obj.coef_.tolist()
-                except:
-                    fe_imps = model_obj.coef_.feature_importances_.tolist()
-                    
-            else:
-                try:
-                    fe_imps = model_obj.best_estimator_.coef_.tolist()
-                except:
-                    fe_imps = model_obj.best_estimator_.feature_importances_.tolist()
-            
-            if i==0:
-                feat_imp_df = pd.DataFrame({'feature_name':model_obj.feature_names_in_, 
-                                            model_name:fe_imps})  
-            else:
-                feat_imp_df[model_name] = fe_imps
+            if 'nn' not in model_name:
+                if hp_tuned == 'N':
+                    try:
+                        fe_imps = model_obj.coef_.tolist()
+                    except:
+                        fe_imps = model_obj.coef_.feature_importances_.tolist()
+                        
+                else:
+                    try:
+                        fe_imps = model_obj.best_estimator_.coef_.tolist()
+                    except:
+                        fe_imps = model_obj.best_estimator_.feature_importances_.tolist()
+                
+                if i==0:
+                    feat_imp_df = pd.DataFrame({'feature_name':model_obj.feature_names_in_, 
+                                                model_name:fe_imps})  
+                else:
+                    feat_imp_df[model_name] = fe_imps
                 
         return feat_imp_df.round(4)
     
