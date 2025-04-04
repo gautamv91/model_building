@@ -321,7 +321,7 @@ class DataPreprocessing:
                 map_df = inter_df
             else:
                 #final_df = pd.concat([final_df, agg_result[col]], axis=1, ignore_index=False)
-                map_df = final_df.merge(inter_df, how='inner', on=group_by, validate='one_to_one')
+                map_df = map_df.merge(inter_df, how='inner', on=group_by, validate='one_to_one')
             
         return map_df, col_mode_dict
     
