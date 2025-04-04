@@ -274,4 +274,114 @@ class DataPreprocessing:
         
         return new_df
     
+    ### Other methods to handle missing values
+    # Update missing values for categorical features with mode for each data segment
+    def get_mode_by_group(self, data, columns, group_by):
+        """
+        This function will update the values in a categorical field
+        with the mode calculated at the group level provided.
+        It also returns the overall mode for each column so that it can be used for any unseen
+        categories in the test dataset.
+
+        Parameters
+        ----------
+        data : DataFrame.
+        columns : List of categorical columns for which the mode is to be calculated.
+        group_by : List of columns at the level at which aggregation needs to be carried out.
+
+        Returns
+        -------
+        DataFrame: With mode for each group.
+        Dictionary: With the overall mode for the column.
+
+        """
+        map_df = pd.DataFrame()
+        col_mode_dict = dict()
+        for col in columns:
+            
+            col_mode = data[col].value_counts().reset_index().iloc[0,0]
+            data[col].fillna(col_mode, inplace=True)
+            group_cols = group_by + [col]
+            col_mode_dict[col] = col_mode
+            
+            count_df = data.groupby(by=group_cols).agg({col:'count'})
+            count_df.columns = ['count']
+            count_df.reset_index(inplace=True)
+            max_by_grp = count_df.groupby(by=group_by).agg({'count':'max'})
+            max_by_grp.columns = ['max']
+            max_by_grp.reset_index(inplace=True)
+            count_df = count_df.merge(max_by_grp, how='inner',on=group_by, validate='many_to_one')
+            agg_result = count_df.loc[count_df['count']==count_df['max'], group_cols]
+            
+            # if there are multiple rows with same max value, the choose 1
+            agg_result['row_num']= agg_result.groupby(group_by).cumcount()
+            inter_df = agg_result.loc[agg_result['row_num']==0, group_cols]
+            
+            if col==columns[0]:
+                map_df = inter_df
+            else:
+                #final_df = pd.concat([final_df, agg_result[col]], axis=1, ignore_index=False)
+                map_df = final_df.merge(inter_df, how='inner', on=group_by, validate='one_to_one')
+            
+        return map_df, col_mode_dict
+    
+    # Update missing values for numerical features with median for each data segment
+    def get_median_by_group(self, data, columns, group_by):
+        """
+        This function will update the values in a numerical field with the 
+        median calculated at the group level provided.
+        It also returns the overall median for each column so that it can be 
+        used for any unseen categories in the test dataset.
+
+        Parameters
+        ----------
+        data : DataFrame.
+        columns : List of numerical columns for which the median is to be calculated.
+        group_by : List of columns at the level at which aggregation needs to be carried out.
+
+        Returns
+        -------
+        DataFrame: With median for each group.
+        Dictionary: With the overall median for the column.
+
+        """
+        col_median_df = data[columns].median().reset_index()
+        #col_median_df.columns=['feature','median_val']
+        col_median_dict = {col_median_df.iloc[i,0]: col_median_df.iloc[i,1] for i in range(col_median_df.shape[0])}
+        
+        map_df = data.groupby(by=group_by).agg({i:'median' for i in columns}).reset_index()
+        map_df.columns = group_by + columns
+        
+        return map_df, col_median_dict
+    
+    def update_median_by_group(self, data, map_df, overall_median_dict, group_by):
+        """
+        This function uses the output of the get_median_by_group function to update the 
+        missing values of numeric features in a dataset with the median value by the 
+        group defined.
+
+        Parameters
+        ----------
+        data : DataFrame
+        map_df : Mapping dataframe containing the median values for each broup for the relevant columns.
+        overall_median_dict : Dictionary containing the column level median values.
+        group_by : List of columns for which median is calculated for each group.
+
+        Returns
+        -------
+        final_df : DataFrame: The final DataFrame with missing values updated 
+                    with the median by group.
+
+        """
+        cols_with_missing = list(overall_median_dict.keys())
+        final_df = data.merge(map_df, how='inner', on=group_by, validate='many_to_one')
+        for i in cols_with_missing:
+            final_df[i+'_x'] = np.where(final_df[i+'_x'].isna(),final_df[i+'_y'],final_df[i+'_x'])
+
+        final_df.drop([i+'_y' for i in cols_with_missing], axis=1,inplace=True)
+        fnl_cols = {i+'_x':i for i in cols_with_missing}
+        final_df.rename(columns=fnl_cols, inplace=True)
+        
+        return final_df
+    
     

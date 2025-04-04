@@ -8,6 +8,11 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import math
+# from joblib import Parallel, delayed
+
+# Parallel processing isn't ideal for directly updating matplotlib figures 
+# because matplotlib is not inherently thread-safe. Instead, we can avoid 
+# joblib and iteratively generate the subplots for the grid
 
 
 class EDA:
@@ -183,7 +188,7 @@ class EDA:
 
         return None
 
-    def bivar_box_plt(self, df, cat_cols, num_cols):
+    def bivar_box_plt(self, df, cat_cols, num_cols, n_jobs=4):
         """
         This function will create a grid of box-plots based on all combinations of numeric & categorical columns,
         that can be used for bi-variate analysis.
@@ -210,20 +215,46 @@ class EDA:
 
         figure, axis = plt.subplots(grid_rows, grid_cols, figsize=(grid_cols*3,grid_rows*2))
         figure.tight_layout()
-
+        
+        # delayed_funcs = list()
+        # def pair_box_plot(data, row_index, x_col_name, col_index=None, y_col_name=None):
+        #     if col_index is None:
+        #         sns.boxplot(ax=axis[row_index], x=x_col_name, y=y_col_name, data=data)
+        #     else:
+        #         sns.boxplot(ax=axis[row_index, col_index], x=x_col_name, y=y_col_name, data=data)
+        
         if grid_cols>1:
             for i in range(grid_rows):
                 for j in range(grid_cols):
                     if row_var[i] in num_cols:
-                        sns.boxplot(ax=axis[i, j], x=col_var[j], y=row_var[i], data=df)
+                        x_col = col_var[j]
+                        y_col = row_var[i]
+                        #sns.boxplot(ax=axis[i, j], x=col_var[j], y=row_var[i], data=df)
                     else:
-                        sns.boxplot(ax=axis[i, j], x=row_var[i], y=col_var[j], data=df)
+                        x_col = row_var[i]
+                        y_col = col_var[j]
+                        #sns.boxplot(ax=axis[i, j], x=row_var[i], y=col_var[j], data=df)
+                    
+                    sns.boxplot(ax=axis[i, j], x=x_col, y=y_col, data=df[[x_col,y_col]])
+                    # delayed_funcs.append(delayed(pair_box_plot)(df[[x_col,y_col]], i, x_col, j, y_col ))
         else:
             for i in range(grid_rows):
                 if row_var[i] in num_cols:
-                    sns.boxplot(ax=axis[i], x=col_var[0], y=row_var[i], data=df)
+                    x_col = col_var[0]
+                    y_col = row_var[i]
+                    #sns.boxplot(ax=axis[i], x=col_var[0], y=row_var[i], data=df)
                 else:
-                    sns.boxplot(ax=axis[i], x=row_var[i], y=col_var[0], data=df)
+                    x_col = row_var[i]
+                    y_col = col_var[0]
+                    #sns.boxplot(ax=axis[i], x=row_var[i], y=col_var[0], data=df)
+                    
+                sns.boxplot(ax=axis[i], x=x_col, y=y_col, data=df[[x_col,y_col]])
+                # delayed_funcs.append(delayed(pair_box_plot)(df[[x_col,y_col]], i, x_col, None, y_col ))
+        
+        # with Parallel(n_jobs=n_jobs) as parallel:
+
+        #     #fnl_prl = parallel(delayeds_funcs)
+        #     parallel(delayed_funcs)
 
         plt.show()
 

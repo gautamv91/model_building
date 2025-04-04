@@ -23,6 +23,11 @@ class ModelSelection:
 
         return None
     
+    #### Code for Hyper-parameter tuning using Optuna
+    def objective_optuna(self, model_type, ):
+        
+        pass
+    
     def train_test_compare(self, model_objs, xtrain, xtest, ytrain, ytest
                            , metrics_list=mc.ALL_METRICS, objective=mc.BINARY):
         """
