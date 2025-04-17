@@ -189,7 +189,7 @@ class ModelSelection:
                     try:
                         fe_imps = model_obj.coef_.tolist()
                     except:
-                        fe_imps = model_obj.coef_.feature_importances_.tolist()
+                        fe_imps = model_obj.feature_importances_.tolist()
                         
                 else:
                     try:
