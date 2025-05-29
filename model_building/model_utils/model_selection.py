@@ -111,6 +111,57 @@ class ModelSelection:
                                                      'metrics': metrics, 'train': train, 'test': test})]
                                        , axis=0, ignore_index=True
                                        )
+        elif objective == mc.MULTICLASS:
+            for i in range(len(model_objs['models'])):
+                model_obj = model_objs['models'][i]
+                model_name = model_objs['model_name'][i]
+                
+                # if 'nn' in model_name:
+                #     train_pred = np.where(model_obj.predict(xtrain)>=0.5,1,0)
+                #     test_pred = np.where(model_obj.predict(xtest)>=0.5,1,0)
+                #     train_pred_prob = model_obj.predict(xtrain)
+                #     test_pred_prob = model_obj.predict(xtest)
+                # else:
+                train_pred = model_obj.predict(xtrain)
+                test_pred = model_obj.predict(xtest)
+                train_pred_prob = model_obj.predict_proba(xtrain)
+                test_pred_prob = model_obj.predict_proba(xtest)
+                    
+                data_dict = {'train': [ytrain, train_pred, train_pred_prob], 'test': [ytest, test_pred, test_pred_prob]}
+                
+                if metrics_list == mc.ALL_METRICS:
+                    metrics = self.all_binary_metrics
+                else:
+                    metrics = metrics_list
+                    
+                metrics_avg = 'weighted'
+                    
+                for key, data in data_dict.items():
+                    metrics_vals = list()
+                    
+                    if 'accuracy' in metrics:
+                        acc = accuracy_score(data[0], data[1])
+                        metrics_vals.append(acc)
+                    if 'precision' in metrics:
+                        pr = precision_score(data[0], data[1], average=metrics_avg)
+                        metrics_vals.append(pr)
+                    if 'recall' in metrics:
+                        rcl = recall_score(data[0], data[1], average=metrics_avg)
+                        metrics_vals.append(rcl)
+                    if 'f1 score' in metrics:
+                        f1 = f1_score(data[0], data[1], average=metrics_avg)
+                        metrics_vals.append(f1)
+    
+                    if key == 'train':
+                        train = metrics_vals
+                    else:
+                        test = metrics_vals
+
+                metrics_df = pd.concat( [metrics_df, 
+                                       pd.DataFrame({'model':[model_name for i in metrics], 
+                                                     'metrics': metrics, 'train': train, 'test': test})]
+                                       , axis=0, ignore_index=True
+                                       )
         elif objective==mc.REGRESSION:
             for i in range(len(model_objs['models'])):
                 model_obj = model_objs['models'][i]
@@ -189,7 +240,7 @@ class ModelSelection:
                     try:
                         fe_imps = model_obj.coef_.tolist()
                     except:
-                        fe_imps = model_obj.coef_.feature_importances_.tolist()
+                        fe_imps = model_obj.feature_importances_.tolist()
                         
                 else:
                     try:
@@ -217,4 +268,4 @@ class ModelSelection:
         plt.legend()
         plt.show()
         return None
-        
+           
