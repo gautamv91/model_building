@@ -263,7 +263,7 @@ class EDA:
     def bivar_line_plot(self, df, num_cols):
         """
         This function is used to generate line plots between pairs of numeric variables to identify
-        relationships.
+        relationships. Useful for bi-variate analysis.
 
         Parameters
         ----------
