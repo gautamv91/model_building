@@ -5,6 +5,9 @@ This repo contains all the functions needed to perform basic EDA & ETL on datase
 
 ### 1. Exploratory Data Analysis (`eda_utils.eda.EDA`)
 Provides summary statistics and visualization capabilities for pandas dataframes.
+- `count_na(col)`: Counts the number of missing values in a pandas column.
+- `percentile_25(col)`: Calculates the 25th percentile of a pandas column.
+- `percentile_75(col)`: Calculates the 75th percentile of a pandas column.
 - `create_data_summary(df)`: Generates a table containing unique counts, missing counts, min, max, mean, median, standard deviation, mode, and percentiles for each feature.
 - `dist_plot(df, cols, bin_num)`: Plots histogram distributions for numerical variables in a grid.
 - `count_plot(df, cols, split_by, order_by)`: Plots bar counts for categorical variables.
